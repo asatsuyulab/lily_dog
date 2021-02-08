@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+    <node name="joint_states_to_CAN" pkg="lily_dog" type="joint_states_to_CAN" output="screen">
+        <rosparam command="load" file="$(find lily_dog)/config/CAN/CAN_ID_list.yaml"/>
+    </node>
+
+</launch>

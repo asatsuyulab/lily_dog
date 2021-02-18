@@ -2,3 +2,5 @@ joint_CAN_ID:
   shoulder1_joint: 0x201
   shoulder2_joint: 0x211
   knee_joint: 0x221
+  body2_joint: 0x201
+  body3_joint: 0x444

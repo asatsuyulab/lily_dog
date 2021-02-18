@@ -6,13 +6,13 @@ from can_msgs.msg import Frame
 def PC_CAN_Node():
     pub = rospy.Publisher('CAN_robot_command', Frame, queue_size=10)
     rospy.init_node('PC_CAN_Node', anonymous=True)
-    r = rospy.Rate(10) # 10hz
+    r = rospy.Rate(100)
     msg = Frame()
     while not rospy.is_shutdown():
         msg.header.stamp = rospy.Time.now()
-        msg.id = 0x000
+        msg.id = 0xabc
         msg.dlc = 8
-        msg.data = "00000000"
+        msg.data = "12345678"
         msg.is_rtr = False
         msg.is_extended = False
         msg.is_error = False

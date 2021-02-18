@@ -8,11 +8,6 @@ ros::Subscriber js_sub;
 uint8_t DummyMsg[] = {7, 6, 5, 4, 3, 2, 1, 0};
 XmlRpc::XmlRpcValue joint_CAN_ID;
 
-
-//////////////////////////
-can_msgs::Frame poyo_msg[3];
-//////////////////////////
-
 can_msgs::Frame create_CAN_message(uint32_t _id, uint8_t *_data){
     can_msgs::Frame msg;
     msg.header.stamp = ros::Time::now();
@@ -26,7 +21,8 @@ can_msgs::Frame create_CAN_message(uint32_t _id, uint8_t *_data){
 }
 
 void Callback(const sensor_msgs::JointState js_msg){
-    int16_t joint_quantity = (int)js_msg.name.size();
+    int16_t joint_quantity = 1;//(int)js_msg.name.size();
+    ros::Rate delay_1ms(1000);
     for (uint16_t i = 0; i < joint_quantity; i++)
     {
         int32_t id = static_cast<std::int32_t>(joint_CAN_ID[js_msg.name[i]]);
@@ -36,12 +32,8 @@ void Callback(const sensor_msgs::JointState js_msg){
         ROS_INFO("Quantity: %d,  ID: %x,  Pos: %f",joint_quantity, id, pos_val);
     
         can_msgs::Frame CAN_msg = create_CAN_message(id, data);
-        // CAN_pub.publish(CAN_msg);
-
-//////////////////////
-        poyo_msg[i] = CAN_msg;
-//////////////////////
-
+        CAN_pub.publish(CAN_msg);
+        delay_1ms.sleep();
     }
 }
 
@@ -53,22 +45,7 @@ int main(int argc, char **argv) {
     pnh.getParam("joint_CAN_ID", joint_CAN_ID);
     CAN_pub = nh.advertise<can_msgs::Frame>("CAN_robot_command", 1000);
     js_sub = nh.subscribe("joint_states", 1000, Callback);
-    // ros::spin();
-
-////////////////////
-    ros::Rate loop_rate(100);
-    ros::Rate rate(1000);
-    while (ros::ok())
-    {
-        CAN_pub.publish(poyo_msg[0]);
-        rate.sleep();
-        CAN_pub.publish(poyo_msg[1]);
-        rate.sleep();
-        CAN_pub.publish(poyo_msg[2]);
-        loop_rate.sleep();
-        ros::spinOnce();
-    }
-////////////////////
+    ros::spin();
 
     return 0;
 }

@@ -10,7 +10,7 @@ def PC_CAN_Node():
     msg = Frame()
     while not rospy.is_shutdown():
         msg.header.stamp = rospy.Time.now()
-        msg.id = 0xabc
+        msg.id = 0x123
         msg.dlc = 8
         msg.data = "12345678"
         msg.is_rtr = False

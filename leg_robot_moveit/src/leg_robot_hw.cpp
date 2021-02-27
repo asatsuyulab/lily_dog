@@ -42,6 +42,11 @@ void leg_robot::read(const ros::Time &time, const ros::Duration &period)
 void leg_robot::write(const ros::Time &time, const ros::Duration &period)
 {
     can_msgs::Frame msg;
+    msg.header.stamp = ros::Time::now();
+    msg.dlc = 8;
+    msg.is_error = false;
+    msg.is_extended = false;
+    msg.is_rtr = false;
     for(int i=0; i<3; i++)
     {
         float val = _cmd[i];

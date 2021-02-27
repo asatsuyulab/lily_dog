@@ -4,14 +4,24 @@
     <arg name="model" default="$(find leg_robot_moveit)/xacro/leg_robot.xacro"/>
     <param name="robot_description" command="$(find xacro)/xacro $(arg model) --inorder"/>
     
-    <!-- gazebo world -->
-    <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
-    
-    <!-- gazebo model -->
-    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model leg_robot"/>
+    <!-- controllers -->
     <rosparam command="load" file="$(find leg_robot_moveit)/config/robot_controllers.yaml"/>
-    <node name="leg_robot_controller_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" args="leg_robot_controller joint_state_controller"/>
+
+    <arg name="sim_mode" default="true"/>
+    <group if="$(arg sim_mode)">
+        <!-- gazebo world -->
+        <include file="$(find gazebo_ros)/launch/empty_world.launch"/>
     
+        <!-- gazebo model -->
+        <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model leg_robot"/>
+    </group>
+    <group unless="$(arg sim_mode)">
+        <!-- leg_robot real hardware driver -->
+        <node name="leg_robot_hw_driver" pkg="leg_robot_moveit" type="leg_robot_hw_driver" output="screen"/>
+    </group>
+    
+    <node name="leg_robot_controller_spawner" pkg="controller_manager" type="spawner" output="screen" respawn="false" args="leg_robot_controller joint_state_controller"/>
+
     <!-- common -->
     <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
 
@@ -30,7 +40,7 @@
                                         default_planner_request_adapters/FixStartStateCollision
                                         default_planner_request_adapters/FixStartStatePathConstraints"/>
     
-    <node name="move_group" pkg="moveit_ros_move_group" type="move_group"  output="log" respawn="false" args="">
+    <node name="move_group" pkg="moveit_ros_move_group" type="move_group"  output="log" args="">
         <!-- Set the display variable, in case OpenGL code is used internally -->
         <env name="DISPLAY" value="$(optenv DISPLAY :0)" />
 

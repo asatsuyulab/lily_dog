@@ -1,25 +1,25 @@
 #include <ros/ros.h>
 #include <controller_manager/controller_manager.h>
-#include <lily_dog/leg_robot_hw.h>
+#include <leg_robot_moveit/leg_robot_hw.h>
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
-    ros::init(argc, argv, "leg_robot");
+    ros::init(argc, argv, "lily_leg");
+    ros::NodeHandle nh;
 
-    leg_robot leg;
-    controller_manager::ControllerManager cm(&leg, leg.nh);
+    leg_robot lily_leg(nh);
+    controller_manager::ControllerManager cm(&lily_leg, nh);
     
-    ros::Rate rate(100);
     ros::AsyncSpinner spinner(1);
-
+    ros::Rate rate(100);
     spinner.start();
     while(ros::ok())
     {
-        ros::Time now = ros::Time::now();
-        ros::Duration dt = ros::Duration(0.01);
-        leg.read(now, dt);
+        ros::Time now = lily_leg.get_time();
+        ros::Duration dt = lily_leg.get_period();
+        lily_leg.read(now, dt);
         cm.update(now, dt);
-        leg.write(now, dt);
+        lily_leg.write(now, dt);
         rate.sleep();
     }
     spinner.stop();

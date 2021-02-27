@@ -10,7 +10,11 @@ project(leg_robot_moveit)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
+  hardware_interface
+  controller_manager
   std_msgs
+  can_msgs
+  moveit_ros_planning_interface
 )
 
 ## System dependencies are found with CMake's conventions
@@ -103,9 +107,9 @@ find_package(catkin REQUIRED COMPONENTS
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES leg_robot_moveit
-#  CATKIN_DEPENDS roscpp rospy std_msgs
+ CATKIN_DEPENDS roscpp rospy hardware_interface controller_manager std_msgs can_msgs
 #  DEPENDS system_lib
 )
 
@@ -116,7 +120,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -134,6 +138,8 @@ include_directories(
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/leg_robot_moveit_node.cpp)
+add_executable(leg_robot_hw_driver src/leg_robot_hw_driver.cpp src/leg_robot_hw.cpp)
+add_executable(moveit_commander src/moveit_commander.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -149,6 +155,12 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+target_link_libraries(leg_robot_hw_driver
+  ${catkin_LIBRARIES}
+)
+target_link_libraries(moveit_commander
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##

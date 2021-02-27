@@ -1,6 +1,6 @@
-#include <leg_robot_hw.h>
+#include <leg_robot_moveit/leg_robot_hw.h>
 
-leg_robot::leg_robot()
+leg_robot::leg_robot(ros::NodeHandle _nh)
 {
     // connect and register the joint state interface
     hardware_interface::JointStateHandle state_handle_shoulder1( "shoulder1_joint", &_pos[0], &_vel[0], &_eff[0] );
@@ -25,14 +25,39 @@ leg_robot::leg_robot()
     jnt_pos_interface.registerHandle(pos_handle_knee);
 
     registerInterface( &jnt_pos_interface );
+
+    joint_controller = _nh.advertise<can_msgs::Frame>("sent_messages", 1000);
+
+    for(int i; i<3; i++)
+        _pos[i] = _vel[i] = _eff[i] = 0;
 }
 
-void read (const ros::Time &time, const ros::Duration &period)
+void leg_robot::read(const ros::Time &time, const ros::Duration &period)
 {
-
+    for(int i=0; i<3; i++)
+        if(!isnan(_cmd[i]))
+            _pos[i] = _cmd[i];
 }
 
-void write (const ros::Time &time, const ros::Duration &period)
+void leg_robot::write(const ros::Time &time, const ros::Duration &period)
 {
-    
+    can_msgs::Frame msg;
+    for(int i=0; i<3; i++)
+    {
+        float val = _cmd[i];
+        msg.id = 0x200 + i;
+        memcpy(&msg.data[4], &val, 4);
+        msg.data[0] = 1;
+        joint_controller.publish(msg);
+    }
+}
+
+ros::Time leg_robot::get_time()
+{
+    return ros::Time::now();
+}
+
+ros::Duration leg_robot::get_period()
+{
+    return ros::Duration(0.01);
 }

@@ -155,7 +155,7 @@
         <child link="lower_leg_link"/>
         <axis xyz="0 0 1"/>
         <limit lower="${radians(-150)}" upper="${radians(150)}" velocity="50.0" effort="1000.0"/>
-        <origin xyz="0.3 0 0" rpy="${radians(180)} 0 0"/>
+        <origin xyz="0.3 0 0" rpy="0 0 0"/>
         <dynamics damping="1.0"/>
     </joint>
     <transmission name="knee_trans" type="SimpleTransmission">
@@ -174,7 +174,7 @@
             <inertia ixx="1.0" ixy="0.0" ixz="0.0" iyy="1.0" iyz="0.0" izz="1.0"/>
         </inertial>
         <visual>
-            <origin xyz="0.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+            <origin xyz="0.0 0.0 0.0" rpy="${radians(180)} 0.0 0.0"/>
             <geometry>
                 <mesh filename="package://lily_dog/stl/leg_tester/lower_leg_link.stl"/>
             </geometry>

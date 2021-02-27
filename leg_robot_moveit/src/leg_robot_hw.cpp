@@ -47,10 +47,11 @@ void leg_robot::write(const ros::Time &time, const ros::Duration &period)
     msg.is_error = false;
     msg.is_extended = false;
     msg.is_rtr = false;
+    int ID[3] = {0x201, 0x211, 0x221};
     for(int i=0; i<3; i++)
     {
         float val = _cmd[i];
-        msg.id = 0x200 + i;
+        msg.id = ID[i];
         memcpy(&msg.data[4], &val, 4);
         msg.data[0] = 1;
         joint_controller.publish(msg);

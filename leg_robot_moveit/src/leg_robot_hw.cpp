@@ -26,10 +26,58 @@ leg_robot::leg_robot(ros::NodeHandle _nh)
 
     registerInterface( &jnt_pos_interface );
 
-    joint_controller = _nh.advertise<can_msgs::Frame>("sent_messages", 1000);
+    motor_commander = _nh.advertise<can_msgs::Frame>("sent_messages", 1000);
+    motor_state_reciever = _nh.subscribe("recieved_messages", 10, &leg_robot::recieve_callback, this);
 
     for(int i; i<3; i++)
         _pos[i] = _vel[i] = _eff[i] = 0;
+}
+
+void leg_robot::recieve_callback(const can_msgs::Frame& msg)
+{
+    float val;
+    memcpy(&val, &msg.data[4], 4);
+    switch (msg.id)
+    {
+    case SHOULDER1_POS_ACTUAL_ID:
+        _pos[0] = val;
+        break;
+        
+    case SHOULDER1_VEL_ACTUAL_ID:
+        _vel[0] = val;
+        break;
+
+    case SHOULDER1_EFF_ACTUAL_ID:
+        _eff[0] = val;
+        break;
+
+    case SHOULDER2_POS_ACTUAL_ID:
+        _pos[1] = val;
+        break;
+        
+    case SHOULDER2_VEL_ACTUAL_ID:
+        _vel[1] = val;
+        break;
+
+    case SHOULDER2_EFF_ACTUAL_ID:
+        _eff[1] = val;
+        break;
+    
+    case KNEE_POS_ACTUAL_ID:
+        _pos[2] = val;
+        break;
+    
+    case KNEE_VEL_ACTUAL_ID:
+        _vel[2] = val;
+        break;
+    
+    case KNEE_EFF_ACTUAL_ID:
+        _eff[2] = val;
+        break;
+    
+    default:
+        break;
+    }
 }
 
 void leg_robot::read(const ros::Time &time, const ros::Duration &period)
@@ -47,14 +95,14 @@ void leg_robot::write(const ros::Time &time, const ros::Duration &period)
     msg.is_error = false;
     msg.is_extended = false;
     msg.is_rtr = false;
-    int ID[3] = {0x201, 0x211, 0x221};
+    int ID[3] = {SHOULDER1_POS_COMMAND_ID, SHOULDER2_POS_COMMAND_ID, KNEE_POS_COMMAND_ID};
     for(int i=0; i<3; i++)
     {
         float val = _cmd[i];
         msg.id = ID[i];
         memcpy(&msg.data[4], &val, 4);
         msg.data[0] = 1;
-        joint_controller.publish(msg);
+        motor_commander.publish(msg);
     }
 }
 

@@ -17,13 +17,15 @@
             args="joint_state_controller leg_robot_trajectory_controller"/>
 
     <!-- common -->
-    <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
     
     <param name="robot_description_semantic" textfile="$(find lily_dog)/config/moveit/leg_robot.srdf"/>
     <group ns="robot_description_planning">
         <rosparam command="load" file="$(find lily_dog)/config/moveit/joint_limits.yaml"/>
     </group>
-
+    <group ns="robot_description_kinematics">
+	<rosparam command="load" file="$(find lily_dog)/config/moveit/kinematics.yaml"/>
+    </group>
     <!-- moveit setting -->
     <arg name="planning_adapters" value="default_planner_request_adapters/AddTimeParameterization
                         default_planner_request_adapters/FixWorkspaceBounds
